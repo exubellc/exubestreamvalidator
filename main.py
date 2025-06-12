@@ -1,3 +1,7 @@
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
 def is_fake_live(stream):
     flags = []
 
@@ -17,3 +21,16 @@ def is_fake_live(stream):
         "status": "Flagged" if flags else "Clean",
         "reasons": flags
     }
+
+@app.route("/validate", methods=["POST"])
+def validate_stream():
+    try:
+        stream_data = request.get_json()
+        result = is_fake_live(stream_data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({"message": "XubeStreamValidator is live."})
